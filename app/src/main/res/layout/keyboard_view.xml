@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#121212">
+    <TextView
+        android:id="@+id/btnTone"
+        android:layout_width="wrap_content"
+        android:layout_height="32dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:text="🎯 Pro"
+        android:textSize="12sp"
+        android:background="@drawable/chip_background"
+        android:textColor="#FFFFFF"
+        android:layout_marginEnd="6dp"/>
+
+    <!-- Prompt Toolbar -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:showDividers="middle"
+            android:divider="@android:color/transparent"
+            android:dividerPadding="6dp">
+
+
+        <!-- Email -->
+            <Button
+                android:id="@+id/btnEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:minWidth="0dp"
+                android:layout_marginEnd="6dp"
+                android:minHeight="0dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="Email"
+                android:textSize="12sp"/>
+
+            <!-- Social -->
+            <Button
+                android:id="@+id/btnSocial"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:minWidth="0dp"
+                android:layout_marginEnd="6dp"
+                android:minHeight="0dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="Social"
+                android:textSize="12sp"/>
+
+            <!-- Study -->
+            <Button
+                android:id="@+id/btnStudy"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:minWidth="0dp"
+                android:layout_marginEnd="6dp"
+                android:minHeight="0dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="Study"
+                android:textSize="12sp"/>
+
+            <!-- Code -->
+            <Button
+                android:id="@+id/btnCode"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:paddingStart="10dp"
+                android:layout_marginEnd="6dp"
+                android:paddingEnd="10dp"
+                android:text="Code"
+                android:textSize="12sp"/>
+
+            <!-- Business -->
+            <Button
+                android:id="@+id/btnBusiness"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_marginEnd="6dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="Business"
+                android:textSize="12sp"/>
+
+            <!-- Image -->
+            <Button
+                android:id="@+id/btnImage"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:layout_marginEnd="6dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="Image"
+                android:textSize="12sp"/>
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!-- Suggestion Bar -->
+    <LinearLayout
+        android:id="@+id/suggestionBar"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:background="#1E1E1E"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/suggestion1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Suggestion 1"
+            android:textColor="#FFFFFF" />
+
+        <TextView
+            android:id="@+id/suggestion2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Suggestion 2"
+            android:textColor="#FFFFFF" />
+
+        <TextView
+            android:id="@+id/suggestion3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Suggestion 3"
+            android:textColor="#FFFFFF" />
+
+    </LinearLayout>
+
+    <!-- Real Keyboard -->
+    <!-- Keyboard Container -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+
+        <android.inputmethodservice.KeyboardView
+            android:id="@+id/keyboardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:keyBackground="@drawable/key_background_pressed"
+            android:keyTextColor="#FFFFFF"
+            android:keyTextSize="22sp"
+            android:keyPreviewLayout="@layout/key_preview"
+            android:keyPreviewHeight="70dp"
+            android:keyPreviewOffset="-12dp"
+            android:background="#121212"/>
+    </LinearLayout>
+
+
+</LinearLayout>
