@@ -1,17 +1,16 @@
 package com.example.promptkeypad
+
+import android.annotation.SuppressLint
 import android.inputmethodservice.InputMethodService
-import android.inputmethodservice.Keyboard
-import android.inputmethodservice.KeyboardView
+import android.view.Gravity
 import android.view.View
-import android.widget.Button
-import android.widget.TextView
-import com.example.promptkeypad.keyboard.KeyboardManager
+import android.widget.*
+import android.graphics.Color
 
-class PromptService : InputMethodService(),
-    KeyboardView.OnKeyboardActionListener {
+class PromptService : InputMethodService() {
 
-    private lateinit var keyboardView: KeyboardView
-    private lateinit var keyboardManager: KeyboardManager
+    private lateinit var keyboardContainer: LinearLayout
+
     private lateinit var btnEmail: Button
     private lateinit var btnSocial: Button
     private lateinit var btnStudy: Button
@@ -22,40 +21,29 @@ class PromptService : InputMethodService(),
     private lateinit var suggestion1: TextView
     private lateinit var suggestion2: TextView
     private lateinit var suggestion3: TextView
-    private lateinit var qwertyKeyboard: Keyboard
-    private lateinit var symbolKeyboard: Keyboard
-    private var isSymbol = false
+
     private var currentTone = "PROFESSIONAL"
 
-
+    @SuppressLint("MissingInflatedId")
     override fun onCreateInputView(): View {
 
         val view = layoutInflater.inflate(R.layout.keyboard_view, null)
 
-        keyboardView = view.findViewById(R.id.keyboardView)
-        qwertyKeyboard = Keyboard(this, R.xml.qwerty)
-        symbolKeyboard = Keyboard(this, R.xml.symbols)
+        keyboardContainer = view.findViewById(R.id.keyboardContainer)
 
-        keyboardView.keyboard = qwertyKeyboard
+        buildQwertyKeyboard()
 
-        keyboardView.setOnKeyboardActionListener(this)
-
-        keyboardManager = KeyboardManager(keyboardView, qwertyKeyboard)
-
-        // PROMPT BUTTONS
+        // Prompt buttons
         btnEmail = view.findViewById(R.id.btnEmail)
         btnSocial = view.findViewById(R.id.btnSocial)
-        btnStudy = view.findViewById<Button>(R.id.btnStudy)
-        btnCode = view.findViewById<Button>(R.id.btnCode)
-        btnBusiness = view.findViewById<Button>(R.id.btnBusiness)
-        btnImage = view.findViewById<Button>(R.id.btnImage)
+        btnStudy = view.findViewById(R.id.btnStudy)
+        btnCode = view.findViewById(R.id.btnCode)
+        btnBusiness = view.findViewById(R.id.btnBusiness)
+        btnImage = view.findViewById(R.id.btnImage)
 
-        btnEmail.isClickable = true
-        btnSocial.isClickable = true
         val btnTone = view.findViewById<TextView>(R.id.btnTone)
 
         btnTone.setOnClickListener {
-
             currentTone = when (currentTone) {
                 "PROFESSIONAL" -> "CASUAL"
                 "CASUAL" -> "STRICT"
@@ -69,107 +57,183 @@ class PromptService : InputMethodService(),
             }
         }
 
-        btnEmail.setOnClickListener {
-            android.util.Log.d("PromptKeypad", "Email clicked")
-            insertPrompt("EMAIL")
-        }
-
-        btnSocial.setOnClickListener {
-            android.util.Log.d("PromptKeypad", "Social clicked")
-            insertPrompt("SOCIAL")
-        }
-
+        btnEmail.setOnClickListener { insertPrompt("EMAIL") }
+        btnSocial.setOnClickListener { insertPrompt("SOCIAL") }
         btnStudy.setOnClickListener { insertPrompt("STUDY") }
         btnCode.setOnClickListener { insertPrompt("CODE") }
         btnBusiness.setOnClickListener { insertPrompt("BUSINESS") }
         btnImage.setOnClickListener { insertPrompt("IMAGE") }
-        btnEmail.setOnLongClickListener {
-            showPromptOptions("EMAIL")
-            true
-        }
 
-        btnSocial.setOnLongClickListener {
-            showPromptOptions("SOCIAL")
-            true
-        }
-        btnStudy.setOnLongClickListener {
-            showPromptOptions("STUDY")
-            true
-        }
+        btnEmail.setOnLongClickListener { showPromptOptions("EMAIL"); true }
+        btnSocial.setOnLongClickListener { showPromptOptions("SOCIAL"); true }
+        btnStudy.setOnLongClickListener { showPromptOptions("STUDY"); true }
+        btnCode.setOnLongClickListener { showPromptOptions("CODE"); true }
+        btnBusiness.setOnLongClickListener { showPromptOptions("BUSINESS"); true }
+        btnImage.setOnLongClickListener { showPromptOptions("IMAGE"); true }
 
-        btnCode.setOnLongClickListener {
-            showPromptOptions("CODE")
-            true
-        }
-        btnBusiness.setOnLongClickListener {
-            showPromptOptions("BUSINESS")
-            true
-        }
-
-        btnImage.setOnLongClickListener {
-            showPromptOptions("IMAGE")
-            true
-        }
-        // Suggestions
         suggestion1 = view.findViewById(R.id.suggestion1)
         suggestion2 = view.findViewById(R.id.suggestion2)
         suggestion3 = view.findViewById(R.id.suggestion3)
 
         return view
     }
-    override fun onKey(primaryCode: Int, keyCodes: IntArray?) {
+
+    // ================= KEYBOARD BUILD =================
+
+    private fun buildQwertyKeyboard() {
+
+        keyboardContainer.removeAllViews()
+
+        val rows = listOf(
+            listOf("q","w","e","r","t","y","u","i","o","p"),
+            listOf("a","s","d","f","g","h","j","k","l"),
+            listOf("⇧","z","x","c","v","b","n","m","⌫"),
+            listOf("?123","space","↵")
+        )
+
+        buildRows(rows)
+    }
+
+    private fun buildSymbolKeyboard() {
+
+        keyboardContainer.removeAllViews()
+
+        val rows = listOf(
+            listOf("1","2","3","4","5","6","7","8","9","0"),
+            listOf("!","?","@","#","$","%","&","*"),
+            listOf("(",")","-","_","+","="),
+            listOf("ABC","space","↵")
+        )
+
+        buildRows(rows)
+    }
+
+    private fun buildRows(rows: List<List<String>>) {
+
+        rows.forEach { rowKeys ->
+
+            val rowLayout = LinearLayout(this)
+            rowLayout.orientation = LinearLayout.HORIZONTAL
+            rowLayout.gravity = Gravity.CENTER
+            rowLayout.layoutParams =
+                LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+
+            rowKeys.forEach { key ->
+
+                val keyView = layoutInflater.inflate(
+                    R.layout.item_key,
+                    rowLayout,
+                    false
+                ) as TextView
+
+                keyView.text = key
+
+                keyView.setOnClickListener {
+                    handleKeyPress(key)
+                }
+
+                rowLayout.addView(keyView)
+            }
+
+            keyboardContainer.addView(rowLayout)
+        }
+    }
+
+    private fun handleKeyPress(key: String) {
 
         val inputConnection = currentInputConnection ?: return
 
-        when (primaryCode) {
+        when (key) {
 
-            -10 -> {   // Switch layout
-                isSymbol = !isSymbol
-                keyboardView.keyboard = if (isSymbol) symbolKeyboard else qwertyKeyboard
-                return
+            "space" -> inputConnection.commitText(" ", 1)
+
+            "⌫" -> inputConnection.deleteSurroundingText(1,0)
+
+            "↵" -> inputConnection.commitText("\n",1)
+
+            "⇧" -> {
+                // caps logic later
             }
 
-            else -> keyboardManager.handleKey(primaryCode, inputConnection)
+            "?123" -> buildSymbolKeyboard()
+
+            "ABC" -> buildQwertyKeyboard()
+
+            else -> inputConnection.commitText(key,1)
         }
 
         updateSuggestions()
     }
 
+    // ================= PROMPT =================
 
+    private fun insertPrompt(category: String) {
 
-    override fun onPress(primaryCode: Int) {}
-
-    override fun onRelease(primaryCode: Int) {}
-
-    override fun onText(text: CharSequence?) {
         val inputConnection = currentInputConnection ?: return
-        inputConnection.commitText(text, 1)
+        val text = getFullText().trim()
+
+        if (text.isBlank()) return
+
+        val fullPrompt = PromptEngine.generate(category, text, "")
+
+        val firstPrompt = fullPrompt
+            .lines()
+            .firstOrNull { it.isNotBlank() }
+            ?.replace(Regex("^\\d+\\.\\s*"), "")
+            ?: return
+
+        inputConnection.deleteSurroundingText(text.length, 0)
+        inputConnection.commitText(firstPrompt, 1)
     }
 
-    override fun swipeLeft() {}
+    private fun showPromptOptions(category: String) {
 
-    override fun swipeRight() {}
-
-    override fun swipeDown() {}
-
-    override fun swipeUp() {}
-
-    private fun getCurrentWord(): String {
-        val inputConnection = currentInputConnection ?: return ""
-        val text = inputConnection.getTextBeforeCursor(50, 0)?.toString() ?: ""
-
-        return text.split(" ").lastOrNull() ?: ""
-    }
-    private fun replaceCurrentWord(newWord: String) {
         val inputConnection = currentInputConnection ?: return
-        val text = inputConnection.getTextBeforeCursor(50, 0)?.toString() ?: ""
+        val text = getFullText().trim()
+        if (text.isBlank()) return
 
-        val words = text.split(" ")
-        val currentWord = words.lastOrNull() ?: return
+        val fullPrompt = PromptEngine.generate(category, text, "")
 
-        inputConnection.deleteSurroundingText(currentWord.length, 0)
-        inputConnection.commitText(newWord, 1)
+        val prompts = fullPrompt
+            .lines()
+            .filter { it.isNotBlank() }
+            .map { it.replace(Regex("^\\d+\\.\\s*"), "") }
+
+        val layout = LinearLayout(this)
+        layout.orientation = LinearLayout.VERTICAL
+        layout.setBackgroundColor(Color.WHITE)
+
+        val popup = PopupWindow(
+            layout,
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            true
+        )
+
+        prompts.forEach { prompt ->
+
+            val tv = TextView(this)
+            tv.text = prompt
+            tv.setPadding(40,40,40,40)
+            tv.setTextColor(Color.BLACK)
+
+            tv.setOnClickListener {
+                inputConnection.deleteSurroundingText(text.length, 0)
+                inputConnection.commitText(prompt, 1)
+                popup.dismiss()
+            }
+
+            layout.addView(tv)
+        }
+
+        popup.showAtLocation(keyboardContainer, Gravity.TOP, 0, 0)
     }
+
+    // ================= SUGGESTIONS =================
+
     private fun updateSuggestions() {
 
         val text = getFullText().trim()
@@ -178,10 +242,10 @@ class PromptService : InputMethodService(),
             showPromptSuggestions(text)
             return
         }
+
         val emojis = EmojiEngine.suggest(text)
 
         if (emojis.isNotEmpty()) {
-
             suggestion1.text = emojis.getOrNull(0) ?: ""
             suggestion2.text = emojis.getOrNull(1) ?: ""
             suggestion3.text = emojis.getOrNull(2) ?: ""
@@ -189,12 +253,12 @@ class PromptService : InputMethodService(),
             suggestion1.setOnClickListener {
                 currentInputConnection?.commitText(emojis[0], 1)
             }
-
             return
         }
 
         showWordSuggestions()
     }
+
     private fun showWordSuggestions() {
 
         val currentWord = getCurrentWord()
@@ -214,25 +278,10 @@ class PromptService : InputMethodService(),
             }
         }
     }
+
     private fun showPromptSuggestions(text: String) {
 
-        val app = getCurrentApp()
-
-        val categories = when {
-
-            app.contains("gmail", true) ->
-                listOf("REWRITE", "EMAIL", "BUSINESS")
-
-            app.contains("whatsapp", true) ->
-                listOf("REWRITE", "SOCIAL", "EMAIL")
-
-            app.contains("linkedin", true) ->
-                listOf("REWRITE", "BUSINESS", "EMAIL")
-
-            else ->
-                listOf("REWRITE", "EMAIL", "SOCIAL")
-        }
-
+        val categories = listOf("REWRITE","EMAIL","SOCIAL")
         val views = listOf(suggestion1, suggestion2, suggestion3)
 
         for (i in views.indices) {
@@ -242,7 +291,6 @@ class PromptService : InputMethodService(),
             views[i].text = getCategoryLabel(category)
 
             views[i].setOnClickListener {
-
                 if (category == "REWRITE") {
                     autoRewrite(text)
                 } else {
@@ -251,12 +299,10 @@ class PromptService : InputMethodService(),
             }
         }
     }
+
     private fun autoRewrite(text: String) {
-
         val inputConnection = currentInputConnection ?: return
-
         val rewritten = rewrite(text)
-
         inputConnection.deleteSurroundingText(text.length, 0)
         inputConnection.commitText(rewritten, 1)
     }
@@ -267,126 +313,46 @@ class PromptService : InputMethodService(),
             "SOCIAL" -> "📱 Social"
             "STUDY" -> "📘 Study"
             "BUSINESS" -> "📊 Business"
+            "CODE" -> "💻 Code"
+            "IMAGE" -> "🖼 Image"
             else -> category
         }
     }
 
-    fun rewrite(text: String): String {
-
-        val clean = text.trim()
-
-        return when {
-
-            clean.contains("not coming", true) ->
-                "I will be unavailable tomorrow."
-
-            clean.contains("leave", true) ->
-                "I would like to request leave for the specified duration."
-
-            clean.contains("sorry", true) ->
-                "I sincerely apologize for the inconvenience."
-
-            else ->
-                "Rewrite the following sentence in a professional and clear manner: \"$clean\""
-        }
-    }
-
-
     private fun autoInsertPrompt(category: String, text: String) {
-
         val inputConnection = currentInputConnection ?: return
-
         val fullPrompt = PromptEngine.generate(category, text, "")
-
-        val firstPrompt = fullPrompt
-            .lines()
+        val firstPrompt = fullPrompt.lines()
             .firstOrNull { it.isNotBlank() }
             ?.replace(Regex("^\\d+\\.\\s*"), "")
             ?: return
-
         inputConnection.deleteSurroundingText(text.length, 0)
         inputConnection.commitText(firstPrompt, 1)
     }
 
-    private fun insertPrompt(category: String) {
-
-        val inputConnection = currentInputConnection ?: return
-        val text = inputConnection.getTextBeforeCursor(300, 0)?.toString() ?: ""
-
-        if (text.isBlank()) return
-
-        // Generate full 4-prompt block
-        val fullPrompt = PromptEngine.generate(category, text.trim(), "")
-
-        // Extract ONLY first line
-        val firstPrompt = fullPrompt
-            .lines()
-            .firstOrNull { it.isNotBlank() }
-            ?.replace(Regex("^\\d+\\.\\s*"), "") // remove "1. "
-            ?: return
-
-        // Delete typed sentence
-        inputConnection.deleteSurroundingText(text.length, 0)
-
-        // Insert only first prompt
-        inputConnection.commitText(firstPrompt, 1)
-    }
-    private fun showPromptOptions(category: String) {
-
-        val inputConnection = currentInputConnection ?: return
-        val text = inputConnection.getTextBeforeCursor(300, 0)?.toString() ?: ""
-        if (text.isBlank()) return
-
-        val fullPrompt = PromptEngine.generate(category, text.trim(), "")
-
-        val prompts = fullPrompt
-            .lines()
-            .filter { it.isNotBlank() }
-            .map { it.replace(Regex("^\\d+\\.\\s*"), "") }
-
-        // Create vertical layout for popup
-        val layout = android.widget.LinearLayout(this)
-        layout.orientation = android.widget.LinearLayout.VERTICAL
-        layout.setBackgroundColor(android.graphics.Color.WHITE)
-
-        val popup = android.widget.PopupWindow(
-            layout,
-            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-            true
-        )
-
-        prompts.forEach { prompt ->
-
-            val tv = android.widget.TextView(this)
-            tv.text = prompt
-            tv.setPadding(30, 30, 30, 30)
-            tv.setTextColor(android.graphics.Color.BLACK)
-
-            tv.setOnClickListener {
-
-                inputConnection.deleteSurroundingText(text.length, 0)
-                inputConnection.commitText(prompt, 1)
-                popup.dismiss()
-            }
-
-            layout.addView(tv)
+    fun rewrite(text: String): String {
+        val clean = text.trim()
+        return when {
+            clean.contains("leave", true) ->
+                "I would like to request leave for the mentioned duration."
+            else ->
+                "Rewrite professionally: \"$clean\""
         }
-
-        popup.showAtLocation(
-            keyboardView,
-            android.view.Gravity.TOP,
-            0,
-            0
-        )
     }
+
     private fun getFullText(): String {
-        val inputConnection = currentInputConnection ?: return ""
-        return inputConnection.getTextBeforeCursor(200, 0)?.toString() ?: ""
-    }
-    private fun getCurrentApp(): String {
-        return currentInputEditorInfo?.packageName ?: ""
+        return currentInputConnection?.getTextBeforeCursor(200, 0)?.toString() ?: ""
     }
 
+    private fun getCurrentWord(): String {
+        val text = getFullText()
+        return text.split(" ").lastOrNull() ?: ""
+    }
 
+    private fun replaceCurrentWord(newWord: String) {
+        val inputConnection = currentInputConnection ?: return
+        val currentWord = getCurrentWord()
+        inputConnection.deleteSurroundingText(currentWord.length, 0)
+        inputConnection.commitText(newWord, 1)
+    }
 }
