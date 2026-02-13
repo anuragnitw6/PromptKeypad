@@ -4,7 +4,6 @@ import android.inputmethodservice.Keyboard
 import android.inputmethodservice.KeyboardView
 import android.view.inputmethod.InputConnection
 import com.example.promptkeypad.R
-import com.example.promptkeypad.WordDictionary
 
 class KeyboardManager(
     private val keyboardView: KeyboardView,
